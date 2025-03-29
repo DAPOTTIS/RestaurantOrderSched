@@ -13,3 +13,6 @@ build
 **/*.cbp
 **/CMakeScripts
 **/compile_commands.json
+**/*.exe
+**/*/*.exe
+**/src/*.exe
