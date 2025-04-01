@@ -12,7 +12,11 @@ set(LIB_DIR "${PROJECT_SOURCE_DIR}/lib")
 # gather all source files from the src directory
 file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
 
-add_executable(RestaurantOrderScheduler ${SOURCES})
+add_executable(RestaurantOrderScheduler ${SOURCES}
+        src/Order.cpp
+        src/Order.h
+        src/Scheduler.cpp
+        src/Scheduler.h)
 
 # include dirs for third party includes and libs
 target_include_directories(RestaurantOrderScheduler
