@@ -1,36 +1,44 @@
 cmake_minimum_required(VERSION 3.10)
+project(ImGuiVulkanExample)
 
-project(RestaurantOrderScheduler VERSION 1.0 LANGUAGES CXX)
-
+# Set C++ standard (adjust as needed)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
-set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
-set(LIB_DIR "${PROJECT_SOURCE_DIR}/lib")
-
-# gather all source files from the src directory
-file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
-
-add_executable(RestaurantOrderScheduler ${SOURCES}
-        src/Order.cpp
-        src/Order.h
-        src/Scheduler.cpp
-        src/Scheduler.h)
-
-# include dirs for third party includes and libs
-target_include_directories(RestaurantOrderScheduler
-    PRIVATE ${INCLUDE_DIR}
-    PRIVATE ${LIB_DIR}
+# Define source files for ImGui (located in lib)
+set(IMGUI_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_demo.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_draw.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_tables.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_widgets.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_impl_glfw.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui_impl_vulkan.cpp
 )
 
-# for when we do ImGui:
-# add_subdirectory(${LIB_DIR}/imgui)
-# target_link_libraries(RestaurantOrderScheduler PRIVATE imgui)
+# Define source files for your project (located in src)
+set(SRC_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Order.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Scheduler.cpp
+        src/Application.cpp
+        src/Application.h
+)
 
-# Enable testing and add the tests directory if it exists
-#enable_testing()
-#if(EXISTS "${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt")
-#    add_subdirectory(tests)
-#endif()
+# Include directories for headers (both lib and src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+# Find Vulkan
+find_package(Vulkan REQUIRED)
+
+# Find GLFW (assuming you have it installed; adjust if you’re using a custom build)
+find_package(glfw3 REQUIRED)
+
+# Create the executable combining your project and ImGui sources
+add_executable(${PROJECT_NAME} ${SRC_SOURCES} ${IMGUI_SOURCES})
+
+# Link Vulkan and GLFW libraries to your target
+target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan glfw)
+
+# Optionally, you may want to add additional definitions or compile options here.
