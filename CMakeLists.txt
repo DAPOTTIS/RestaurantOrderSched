@@ -32,8 +32,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # Find Vulkan
 find_package(Vulkan REQUIRED)
 
-# Find GLFW (assuming you have it installed; adjust if you’re using a custom build)
-find_package(glfw3 REQUIRED)
+if(NOT GLFW_DIR)
+    set(GLFW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glfw) # Set this to point to an up-to-date GLFW repo
+endif()
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
+option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
+add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
+include_directories(${GLFW_DIR}/include)
+
 
 # Create the executable combining your project and ImGui sources
 add_executable(${PROJECT_NAME} ${SRC_SOURCES} ${IMGUI_SOURCES})
