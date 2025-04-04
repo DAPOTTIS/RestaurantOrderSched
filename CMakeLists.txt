@@ -28,11 +28,13 @@ set(SRC_SOURCES
 # Include directories for headers (both lib and src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # Find Vulkan
 find_package(Vulkan REQUIRED)
 
 # Find GLFW (assuming you have it installed; adjust if you’re using a custom build)
+set(glfw3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/cmake/glfw3")
 find_package(glfw3 REQUIRED)
 
 # Create the executable combining your project and ImGui sources
