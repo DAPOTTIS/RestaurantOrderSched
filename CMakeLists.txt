@@ -16,7 +16,10 @@ add_executable(RestaurantOrderScheduler ${SOURCES}
         src/Order.cpp
         src/Order.h
         src/Scheduler.cpp
-        src/Scheduler.h)
+        src/Scheduler.h
+        src/Menu.cpp
+        src/Menu.h
+        src/MenuItem.h)
 
 # include dirs for third party includes and libs
 target_include_directories(RestaurantOrderScheduler
