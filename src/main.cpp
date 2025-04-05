@@ -19,6 +19,7 @@
 #include "imgui_impl_vulkan.h"
 #include <stdio.h>          // printf, fprintf
 #include <stdlib.h>         // abort
+#include <thread>
 
 #include "Application.h"
 #include "CLI.h"
@@ -438,8 +439,11 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    //CLI entry point
     CLI cli;
-    cli.init();
+    //idk bagarab multithreading
+    std::thread initThread(&CLI::init, &cli);
+    initThread.detach();
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
