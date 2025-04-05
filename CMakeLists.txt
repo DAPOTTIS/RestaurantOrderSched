@@ -26,6 +26,8 @@ set(SRC_SOURCES
         src/Menu.cpp
         src/Menu.h
         src/MenuItem.h
+        src/CLI.cpp
+        src/CLI.h
 )
 
 # Include directories for headers (both lib and src)
