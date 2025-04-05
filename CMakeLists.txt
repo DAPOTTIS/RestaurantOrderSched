@@ -23,11 +23,15 @@ set(SRC_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Scheduler.cpp
         src/Application.cpp
         src/Application.h
+        src/Menu.cpp
+        src/Menu.h
+        src/MenuItem.h
 )
 
 # Include directories for headers (both lib and src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 
 # Find Vulkan
 find_package(Vulkan REQUIRED)
@@ -42,6 +46,7 @@ option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
 include_directories(${GLFW_DIR}/include)
+
 
 
 # Create the executable combining your project and ImGui sources
