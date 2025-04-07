@@ -1,15 +1,6 @@
 #include <iostream>
 #include "States.h"
 
-
-enum class ProcessState {
-    NEW,
-    READY,
-    RUNNING,
-    WAITING,
-    TERMINATED
-};
-
 void admitProcess(){
     // Code to admit a process
     std::cout << "Process admitted." << std::endl;
