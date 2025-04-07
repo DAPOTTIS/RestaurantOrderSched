@@ -28,6 +28,8 @@ set(SRC_SOURCES
         src/MenuItem.h
         src/CLI.cpp
         src/CLI.h
+        src/States.cpp
+        src/States.h
 )
 
 # Include directories for headers (both lib and src)

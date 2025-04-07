@@ -1,3 +1,4 @@
+#include "States.h"
 #ifndef ORDER_H
 #define ORDER_H
 
@@ -12,6 +13,7 @@ public:
     int arrivalTime;
     int pid;
     int waitingTime = 0;
+    ProcessState state;
 
     Priority priority;
 
