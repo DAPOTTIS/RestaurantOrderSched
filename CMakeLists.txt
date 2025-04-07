@@ -30,6 +30,8 @@ set(SRC_SOURCES
         src/CLI.h
         src/States.cpp
         src/States.h
+        src/GUI.cpp
+        src/GUI.h
 )
 
 # Include directories for headers (both lib and src)
