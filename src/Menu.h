@@ -16,7 +16,9 @@ public:
     Menu(string name);
     void addItem(const MenuItem& item);
     const vector<MenuItem>& getItems() const;
+    MenuItem getItemById(int id) const;
     string getName() const;
+    int getItemsCount() const;
     void display() const;
 };
 

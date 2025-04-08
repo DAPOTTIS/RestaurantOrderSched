@@ -18,9 +18,23 @@ const vector<MenuItem>& Menu::getItems() const {
     return items;
 }
 
+// Get Item by ID
+MenuItem Menu::getItemById(int id) const {
+    for (const auto& item : items) {
+        if (item.id == id) {
+            return item;
+        }
+    }
+    throw std::runtime_error("Item not found");
+}
+
 // Get the name of the menu
 string Menu::getName() const {
     return name;
+}
+
+int Menu::getItemsCount() const{
+    return items.size();
 }
 
 // Display the menu
