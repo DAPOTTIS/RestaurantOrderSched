@@ -7,10 +7,12 @@
 void CLI::init() {
     std::cout << "hi";
 
+    Menu menu("Egyptian Menu"); // Create a menu object
+    menu = menu.createEgyptianMenu(); // Create the Egyptian menu
 
     static FCFS scheduler; // Made static to extend lifetime for the processing thread
     scheduler.start();
-   // scheduler.addOrder(egyptianMenu); // Add orders from the menu
+    scheduler.addOrder(menu); // Add orders from the menu
 
     // Uncomment the following lines to add specific orders with delays
     
