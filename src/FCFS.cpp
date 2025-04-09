@@ -10,7 +10,11 @@ using namespace std::chrono;
 using namespace std::this_thread;
 
 int FCFS::id = 0; // Initialize static variable
-FCFS::FCFS() : isProcessing(false) {}
+bool FCFS::isProcessing = false;
+std::queue<Order> FCFS::orderQueue;
+std::mutex FCFS::queueMutex;
+std::condition_variable FCFS::cv;
+FCFS::FCFS(){}
 
 void FCFS::addOrder(const Order& order) {
     {

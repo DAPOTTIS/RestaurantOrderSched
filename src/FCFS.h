@@ -12,10 +12,10 @@ using namespace std;
 
 class FCFS {
 private:
-    std::queue<Order> orderQueue;
-    std::mutex queueMutex;
-    std::condition_variable cv;
-    bool isProcessing;
+    static std::queue<Order> orderQueue;
+    static std::mutex queueMutex;
+    static std::condition_variable cv;
+    static bool isProcessing;
     static int id; // Static variable to keep track of the order ID
 
 public:
