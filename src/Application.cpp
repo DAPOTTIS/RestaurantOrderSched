@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "imgui.h"
 #include "Menu.h"
+#include "FCFS.h"
+#include "Order.h"
 
 
 namespace App {
@@ -16,7 +18,8 @@ namespace App {
         Menu _menu("egyptian");
         Menu egyptianMenu = _menu.createEgyptianMenu();
         const auto& menu = egyptianMenu.getItems();
-
+        static FCFS scheduler; // Made static to extend lifetime for the processing thread
+        scheduler.start();
         static ImGuiTableFlags flags =
                     ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable | ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti
                     | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_NoBordersInBody
@@ -38,7 +41,10 @@ namespace App {
                 ImGui::TableNextColumn();
                 ImGui::TextUnformatted(item.name.c_str());
                 ImGui::TableNextColumn();
-                ImGui::SmallButton("Order");
+                if (ImGui::SmallButton("Order"))
+                {
+                    scheduler.addOrder(Order(item, 1, NORMAL)); // Add the order to the scheduler
+                }
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", item.price);
                 ImGui::TableNextColumn();
@@ -46,6 +52,11 @@ namespace App {
                 ImGui::PopID();
             }
         ImGui::EndTable();
+        }
+        if(ImGui::Button("Exit")){
+            scheduler.stop(); // Stop processing orders
+            ImGui::CloseCurrentPopup(); // Close the menu
+            exit(0); // Exit the application
         }
     }
 }
