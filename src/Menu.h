@@ -20,6 +20,8 @@ public:
     string getName() const;
     int getItemsCount() const;
     void display() const;
+
+    Menu createEgyptianMenu();
 };
 
 #endif MENU_H

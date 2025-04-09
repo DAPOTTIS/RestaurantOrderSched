@@ -52,7 +52,7 @@ void Menu::display() const {
     cout << "--------------------------------------------------" << endl;
 }
 
-Menu createEgyptianMenu() {
+Menu Menu::createEgyptianMenu() {
     Menu egyptian("Egyptian Menu");
     egyptian.addItem(MenuItem(1, "Pita Bread", 4, 5));
     egyptian.addItem(MenuItem(2, "Falafel Wrap", 7, 10));

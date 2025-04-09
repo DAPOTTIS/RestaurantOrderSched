@@ -4,6 +4,7 @@
 
 
 namespace App {
+    void MenuPicker();
     void RenderUI();
 };
 

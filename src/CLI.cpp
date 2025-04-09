@@ -6,12 +6,11 @@
 
 void CLI::init() {
     std::cout << "hi";
-    extern Menu createEgyptianMenu();
-    Menu egyptianMenu = createEgyptianMenu();
+
 
     static FCFS scheduler; // Made static to extend lifetime for the processing thread
     scheduler.start();
-    scheduler.addOrder(egyptianMenu); // Add orders from the menu
+   // scheduler.addOrder(egyptianMenu); // Add orders from the menu
 
     // Uncomment the following lines to add specific orders with delays
     
