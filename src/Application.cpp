@@ -43,7 +43,7 @@ namespace App {
                 ImGui::TableNextColumn();
                 if (ImGui::SmallButton("Order"))
                 {
-                    scheduler.addOrder(Order(item, 1, NORMAL)); // Add the order to the scheduler
+                    scheduler.addOrder(Order(item)); // Add the order to the scheduler
                 }
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", item.price);

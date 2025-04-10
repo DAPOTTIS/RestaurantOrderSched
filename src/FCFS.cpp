@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono;
 using namespace std::this_thread;
 
-int FCFS::id = 0; // Initialize static variable
+// int FCFS::id = 0; // Initialize static variable
 bool FCFS::isProcessing = false;
 std::queue<Order> FCFS::orderQueue;
 std::mutex FCFS::queueMutex;
@@ -42,7 +42,7 @@ void FCFS::addOrder(const Menu& menu) {
             continue;
         }
         const auto& item = menu.getItemById(x);
-        this->addOrder(Order(item, ++id, NORMAL));
+        this->addOrder(Order(item));
     }
 }
 

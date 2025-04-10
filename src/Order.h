@@ -36,6 +36,7 @@ public:
     // Order() : pid(0), burstTime(0), arrivalTime(0), priority(NORMAL), itemName(""), state(ProcessState::NEW) {}
 
     MenuItem item; // Menu item
+    static int orderCount;
     int pid; // Process ID
     ProcessState state;
     Priority priority;
@@ -43,6 +44,7 @@ public:
     int waitingTime = 0; // Waiting time
 
     Order() : pid(0), state(ProcessState::NEW), priority(NORMAL), arrivalTime(0) {}
+    Order(const MenuItem& mItem, Priority p = NORMAL) : item(mItem), pid(++orderCount), state(ProcessState::NEW), priority(p), arrivalTime(0) {}
     Order(const MenuItem& mItem, int pID, Priority p) : item(mItem), pid(pID), state(ProcessState::NEW), priority(NORMAL), arrivalTime(0) {}
     int getPrepTime() const { return item.burstTime; }
     int getArrivalTime() const { return arrivalTime; } 

@@ -16,7 +16,7 @@ private:
     static std::mutex queueMutex;
     static std::condition_variable cv;
     static bool isProcessing;
-    static int id; // Static variable to keep track of the order ID
+    // static int id; // Static variable to keep track of the order ID
 
 public:
     FCFS();
