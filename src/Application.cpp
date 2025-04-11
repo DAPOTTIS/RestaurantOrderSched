@@ -7,10 +7,11 @@
 
 namespace App {
     void RenderUI() {
-        ImGui::Begin("Restaurant System");
+        bool collapse = true;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+        ImGui::Begin("Restaurant System", &collapse, flags);
         MenuPicker();
         ImGui::End();
-
         ImGui::ShowDemoWindow();
     }
 
@@ -37,7 +38,7 @@ namespace App {
                 ImGui::PushID(item.id);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text("%04d", item.id);
+                ImGui::Text("%d", item.id);
                 ImGui::TableNextColumn();
                 ImGui::TextUnformatted(item.name.c_str());
                 ImGui::TableNextColumn();
