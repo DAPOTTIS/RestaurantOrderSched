@@ -37,6 +37,7 @@ class GUI {
     using UIRenderFunc = std::function<void()>;
     void RenderFrame(ImGui_ImplVulkanH_Window *wd);
 
+    void setTheme();
 public:
 
     int main_loop();
