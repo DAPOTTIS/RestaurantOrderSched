@@ -3,7 +3,6 @@
 //
 
 #include "RR.h"
-#include "RR.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
