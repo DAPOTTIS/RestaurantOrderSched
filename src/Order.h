@@ -4,6 +4,9 @@
 #ifndef ORDER_H
 #define ORDER_H
 
+#include <chrono>
+using namespace std::chrono;
+
 
 
 enum Priority {
@@ -12,6 +15,8 @@ enum Priority {
 };
 
 class Order {
+private:
+    int remainingTime; // for RR
 public:
     // std::string itemName;
     // int burstTime;
@@ -50,6 +55,23 @@ public:
     int getArrivalTime() const { return arrivalTime; } 
     int getOrderId() const { return pid; }
     std::string getItemName() const { return item.name; }
+
+
+
+
+    Order(const MenuItem& mItem, int pID, Priority p, int arrival)
+    : item(mItem), pid(pID), state(ProcessState::NEW), priority(p),
+      arrivalTime(arrival), remainingTime(mItem.burstTime) {}
+
+
+    int getRemainingTime() const {
+        return remainingTime;
+    }
+
+    void reduceRemainingTime(int time) {
+        remainingTime -= time;
+        if (remainingTime < 0) remainingTime = 0;
+    }
 };
 
 

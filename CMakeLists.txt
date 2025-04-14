@@ -34,6 +34,8 @@ set(SRC_SOURCES
         src/GUI.h
         src/FCFS.cpp
         src/FCFS.h
+        src/RR.cpp
+        src/RR.h
 )
 
 # Include directories for headers (both lib and src)
@@ -42,6 +44,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 # Find Vulkan
+set(Vulkan_INCLUDE_DIR "C:/VulkanSDK/1.4.309.0/Include")
+set(Vulkan_LIBRARY "C:/VulkanSDK/1.4.309.0/Lib/vulkan-1.lib")
 find_package(Vulkan REQUIRED)
 
 if(NOT GLFW_DIR)
