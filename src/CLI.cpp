@@ -2,6 +2,7 @@
 #include "iostream"
 #include "Menu.h"
 #include "FCFS.h"
+#include "RR.h"
 
 
 void CLI::init() {
@@ -13,6 +14,11 @@ void CLI::init() {
     static FCFS scheduler; // Made static to extend lifetime for the processing thread
     scheduler.start();
     scheduler.addOrder(menu); // Add orders from the menu
+
+    // static RR schedulerRR(6); // Create a Round Robin scheduler with a time quantum of 6
+    // schedulerRR.start();
+    // schedulerRR.addOrder(menu); // Add orders from the menu
+
 
     // Uncomment the following lines to add specific orders with delays
     

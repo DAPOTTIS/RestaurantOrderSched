@@ -3,7 +3,6 @@
 //
 
 #include "RR.h"
-#include "RR.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -21,6 +20,10 @@ int RR::timeQuantum = 6;     //quantum is 6 to avoid high context switch overhea
 
 RR::RR(int quantum) {
     timeQuantum = quantum;
+}
+
+RR::RR() {
+    timeQuantum = 6; // Default quantum
 }
 
 void RR::addOrder(const Order& order) {

@@ -9,8 +9,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <Order.h>
-#include <Menu.h>
+#include "Order.h"
+#include "Menu.h"
 
 using namespace std;
 
@@ -24,6 +24,7 @@ private:
     static condition_variable cv;
     static int currentTime;
 public:
+    RR();
     RR(int quantum);
     void addOrder(const Order& order);
     void addOrder(const Menu& menu);
