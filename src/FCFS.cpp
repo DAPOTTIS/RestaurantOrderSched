@@ -91,5 +91,6 @@ size_t FCFS::getQueueSize() {
 }
 
 std::deque<Order> FCFS::getQueue() {
+    std::lock_guard<std::mutex> lock(queueMutex);
     return orderQueue;
 }
