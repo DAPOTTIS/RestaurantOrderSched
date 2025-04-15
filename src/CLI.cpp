@@ -2,6 +2,7 @@
 #include "iostream"
 #include "Menu.h"
 #include "FCFS.h"
+#include"PQ.h"
 
 
 void CLI::init() {
@@ -10,7 +11,7 @@ void CLI::init() {
     Menu menu("Egyptian Menu"); // Create a menu object
     menu = menu.createEgyptianMenu(); // Create the Egyptian menu
 
-    static FCFS scheduler; // Made static to extend lifetime for the processing thread
+    static PQ scheduler; // Made static to extend lifetime for the processing thread
     scheduler.start();
     scheduler.addOrder(menu); // Add orders from the menu
 
