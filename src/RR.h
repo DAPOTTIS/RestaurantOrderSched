@@ -23,6 +23,8 @@ private:
     static int timeQuantum;
     static condition_variable cv;
     static int currentTime;
+    int nextOrderId = 1;
+
 public:
     RR(int quantum);
     void addOrder(const Order& order);
