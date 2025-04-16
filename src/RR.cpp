@@ -25,10 +25,6 @@ RR::RR(int quantum) {
     timeQuantum = quantum;
 }
 
-RR::RR() {
-    timeQuantum = 6; // Default quantum
-}
-
 void RR::addOrder(const Order& order) {
     {
         lock_guard<mutex> lock(listMutex);
