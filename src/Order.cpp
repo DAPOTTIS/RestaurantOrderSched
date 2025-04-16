@@ -13,4 +13,3 @@ void Order::reduceRemainingTime(int time) {
 
 void Order::setRemainingTime(int time) {
     remainingTime = time;
-}

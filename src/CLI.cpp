@@ -15,6 +15,11 @@ void CLI::init() {
     // scheduler.start();
     // scheduler.addOrder(menu); // Add orders from the menu
 
+    // static RR schedulerRR(6); // Create a Round Robin scheduler with a time quantum of 6
+    // schedulerRR.start();
+    // schedulerRR.addOrder(menu); // Add orders from the menu
+
+
     // Uncomment the following lines to add specific orders with delays
     
     // scheduler.addOrder(Order(items[0], 1, NORMAL));

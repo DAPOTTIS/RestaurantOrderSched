@@ -5,6 +5,7 @@
 
 namespace App {
     void MenuPicker();
+    void SchedQueues();
     void RenderUI();
 };
 

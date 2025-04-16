@@ -7,10 +7,24 @@
 
 namespace App {
     void RenderUI() {
-        ImGui::Begin("Restaurant System");
-        MenuPicker();
-        ImGui::End();
+        bool collapse = true;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+        ImGui::Begin("Restaurant System", &collapse, flags);
 
+        //left side wit the menu
+        ImGui::BeginChild("ChildT", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5), ImGuiChildFlags_None);
+        MenuPicker();
+        ImGui::EndChild();
+
+        //ImGui::SameLine(); uncomment if u want them to be side by side
+
+        //right side with queues
+        ImGui::BeginChild("ChildB", ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_None);
+        SchedQueues();
+        ImGui::EndChild();
+
+
+        ImGui::End();
         ImGui::ShowDemoWindow();
     }
 
@@ -37,13 +51,13 @@ namespace App {
                 ImGui::PushID(item.id);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text("%04d", item.id);
+                ImGui::Text("%d", item.id);
                 ImGui::TableNextColumn();
                 ImGui::TextUnformatted(item.name.c_str());
                 ImGui::TableNextColumn();
                 if (ImGui::SmallButton("Order"))
                 {
-                    scheduler.addOrder(Order(item, 1, NORMAL)); // Add the order to the scheduler
+                    scheduler.addOrder(Order(item)); // Add the order to the scheduler
                 }
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", item.price);
@@ -53,10 +67,36 @@ namespace App {
             }
         ImGui::EndTable();
         }
-        if(ImGui::Button("Exit")){
-            scheduler.stop(); // Stop processing orders
-            ImGui::CloseCurrentPopup(); // Close the menu
-            exit(0); // Exit the application
+    }
+    void SchedQueues() {
+        ImGuiStyle style = ImGui::GetStyle();
+        float child_w = (ImGui::GetContentRegionAvail().x - 4 * style.ItemSpacing.x) / 5;
+        FCFS fcfs;
+        auto fcfsQueue = fcfs.getQueue();
+        ImGui::Columns(3, nullptr, false);
+        for(int i = 0; i < 3; i++) {
+            if(i > 0) ImGui::SameLine();
+            ImGui::BeginGroup();
+            const char* names[] = {"First Come First Serve", "Round Robin", "Priority Scheduling"};
+            ImGui::TextUnformatted(names[i]);
+            const ImGuiID child_id = ImGui::GetID((void*)(intptr_t)i);
+            const bool child_is_visible = ImGui::BeginChild(child_id, ImVec2(0,200.0f), ImGuiChildFlags_Border);
+            // @todo: get current processing order to highlight
+            int currentOrder = 0;
+
+            if(child_is_visible) {
+                for(int order = (int)fcfsQueue.size() - 1; order >= 0; order--) {
+                    if(order == currentOrder) {
+                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Order %d %s", order, fcfsQueue[order].item.name.c_str());
+                    }
+                    else {
+                        ImGui::Text("Order %d %s", order, fcfsQueue[order].item.name.c_str());
+                    }
+                }
+            }
+            ImGui::EndChild();
+            ImGui::EndGroup();
+            ImGui::NextColumn();
         }
     }
 }

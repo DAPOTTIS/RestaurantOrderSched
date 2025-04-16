@@ -66,6 +66,7 @@ void FCFS::processOrders() {
         orderQueue.pop_front();
         cout << "Completed Order ID: " << currentOrder.getOrderId() << endl;
         cout << "Remaining in queue is " << getQueueSize() << endl;
+        orderQueue.pop_front();
     }
 }
 
