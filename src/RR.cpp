@@ -31,7 +31,7 @@ void RR::addOrder(const Order& order) {
         orderList.push_back(order);
     }
     cv.notify_one();
-    cout << "New order added! Total orders: " << getOrderCount() << endl;
+    cout << "Total orders in Queue: " << getOrderCount() << endl;
 }
 
 void RR::addOrder(const Menu& menu) {
@@ -67,7 +67,7 @@ void RR::addOrder(const Menu& menu) {
         // }
 
         // cv.notify_one(); // Wake the processing thread
-        this->addOrder(Order(item)); // Add order to the list using the new method
+        this->addOrder(Order(item)); // Add order to the list using the existing function
     }
 }
 
