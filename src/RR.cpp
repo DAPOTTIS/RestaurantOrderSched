@@ -15,9 +15,11 @@ vector<Order> RR::orderList;
 mutex RR::listMutex;
 condition_variable RR::cv;
 bool RR::isProcessing = false;
-int RR::id = 0;
+// int RR::id = 0;
 int RR::timeQuantum = 8;         // Most jobs are around 10 mins avg, this lets short orders
                                 // finish quickly, while rotating the longer ones fairly
+
+RR::RR() {}
 
 RR::RR(int quantum) {
     timeQuantum = quantum;
@@ -51,67 +53,50 @@ void RR::addOrder(const Menu& menu) {
         }
 
         const auto& item = menu.getItemById(x);
-        Order newOrder(item, ++id, NORMAL);
+        // Order newOrder(item, ++id, NORMAL); //Leaving the mistake to be seen
+        // Order newOrder(item);
 
         // remaining time is initialized to burst time
-        newOrder.setRemainingTime(item.burstTime);
+        // REPLY: This is already handled in the Order constructor
+        // newOrder.setRemainingTime(item.burstTime);
 
-        {
-            lock_guard<mutex> lock(listMutex);
-            orderList.push_back(newOrder);
-            cout << "New order added! Current in queue is " << orderList.size() - 1 << endl;
-        }
+        // {
+        //     lock_guard<mutex> lock(listMutex);
+        //     orderList.push_back(newOrder);
+        //     cout << "New order added! Current in queue is " << orderList.size() << endl;
+        // }
 
-        cv.notify_one(); // Wake the processing thread
+        // cv.notify_one(); // Wake the processing thread
+        this->addOrder(Order(item)); // Add order to the list using the new method
     }
 }
 
 
 void RR::processOrders() {
     isProcessing = true;
-    size_t index = 0;
-
     while (isProcessing) {
         unique_lock<mutex> lock(listMutex);
-        cv.wait(lock, [] { return !orderList.empty() || !isProcessing; });
-
+        cv.wait(lock, [this] { return !orderList.empty() || !isProcessing; });
         if (!isProcessing && orderList.empty()) break;
-        if (orderList.empty()) continue;
-
-        // Reset index if it's out of bounds
-        if (index >= orderList.size()) index = 0;
-
-        Order& currentOrder = orderList[index];
-
+        
+        Order currentOrder = orderList.front();
+        orderList.erase(orderList.begin());
+        lock.unlock();
+        
         int runTime = min(timeQuantum, currentOrder.getRemainingTime());
-
         cout << "\n[RR] Processing Order ID: " << currentOrder.getOrderId()
              << " - " << currentOrder.getItemName()
              << " for " << runTime << " minutes (Remaining before: "
              << currentOrder.getRemainingTime() << ")\n";
-
-        lock.unlock(); // Allow order addition while simulating processing
-        sleep_for(seconds(runTime)); // Simulate time quantum
-
-        lock.lock(); // Lock again to safely update order list
-
-        // Making sure the order hasn't been removed by another thread
-        if (index < orderList.size()) {
-            currentOrder.reduceRemainingTime(runTime);
-
-            if (currentOrder.getRemainingTime() <= 0) {
-                cout << "[RR] Completed Order ID: " << currentOrder.getOrderId() << "\n";
-                orderList.erase(orderList.begin() + index);
-                // Don't increment index since the vector shifted
-            } else {
-                // This order still has work to do, move to the next one
-                index++;
-
-                // If we've reached the end, start over from the beginning
-                if (index >= orderList.size()) {
-                    index = 0;
-                }
-            }
+        
+        sleep_for(seconds(runTime)); // Simulate processing time
+        
+        currentOrder.reduceRemainingTime(runTime);
+        lock.lock();
+        if (currentOrder.getRemainingTime() > 0) {
+            orderList.push_back(currentOrder);
+        } else {
+            cout << "[RR] Completed Order ID: " << currentOrder.getOrderId() << "\n";
         }
     }
 }
