@@ -91,8 +91,9 @@ void RR::processOrders() {
         sleep_for(seconds(runTime)); // Simulate processing time
         
         currentOrder.reduceRemainingTime(runTime);
-        lock.lock();
         orderList.erase(orderList.begin());
+        lock.lock();
+
         if (currentOrder.getRemainingTime() > 0) {
             orderList.push_back(currentOrder);
         } else {

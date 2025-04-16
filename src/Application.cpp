@@ -78,7 +78,7 @@ namespace App {
     template<typename Container>
         void renderQueue(const Container& queue) {
         int currentOrder = 0;
-        for(int order = static_cast<int>(queue.size()) - 1; order >= 0; --order) {
+        for(int order = 0; order < static_cast<int>(queue.size()); ++order) {
             if(order == currentOrder) {
                 ImGui::TextColored(ImVec4(1, 1, 0, 1), "Order %d %s", order, queue[order].item.name.c_str());
             }
