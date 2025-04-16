@@ -62,7 +62,7 @@ Menu Menu::createEgyptianMenu() {
     egyptian.addItem(MenuItem(6, "Aish Baladi", 8, 6));
     egyptian.addItem(MenuItem(7, "Basbousa", 15, 20));
     egyptian.addItem(MenuItem(8, "Molokhia Soup", 9, 18));
-    egyptian.addItem(MenuItem(9, "Taameya", 6, 10));
+    egyptian.addItem(MenuItem(9, "Btates", 6, 10));
     egyptian.addItem(MenuItem(10, "Grilled Kofta", 14, 25));
     return egyptian;
 }

@@ -19,10 +19,12 @@ private:
     static vector<Order> orderList;
     static mutex listMutex;
     static bool isProcessing;
-    static int id;
+    // static int id;
     static int timeQuantum;
     static condition_variable cv;
     static int currentTime;
+    // int nextOrderId = 1;
+
 public:
     RR();
     RR(int quantum);

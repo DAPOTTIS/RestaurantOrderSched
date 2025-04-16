@@ -15,15 +15,14 @@ vector<Order> RR::orderList;
 mutex RR::listMutex;
 condition_variable RR::cv;
 bool RR::isProcessing = false;
-int RR::id = 0;
-int RR::timeQuantum = 6;     //quantum is 6 to avoid high context switch overhead
+// int RR::id = 0;
+int RR::timeQuantum = 8;         // Most jobs are around 10 mins avg, this lets short orders
+                                // finish quickly, while rotating the longer ones fairly
+
+RR::RR() {}
 
 RR::RR(int quantum) {
     timeQuantum = quantum;
-}
-
-RR::RR() {
-    timeQuantum = 6; // Default quantum
 }
 
 void RR::addOrder(const Order& order) {
@@ -32,7 +31,7 @@ void RR::addOrder(const Order& order) {
         orderList.push_back(order);
     }
     cv.notify_one();
-    cout << "New order added! Total orders: " << getOrderCount() << endl;
+    cout << "Total orders in Queue: " << getOrderCount() << endl;
 }
 
 void RR::addOrder(const Menu& menu) {
@@ -42,54 +41,67 @@ void RR::addOrder(const Menu& menu) {
         menu.display();
         cout << "\nEnter item ID to order (0 to exit): ";
         cin >> x;
+
         if (x == 0) {
-            this->stop();
+            this->stop(); // Stop processing loop
             exit(0);
         }
+
         if (x < 1 || x > static_cast<int>(menu.getItemsCount())) {
             cout << "Invalid item ID. Try again.\n";
             continue;
         }
+
         const auto& item = menu.getItemById(x);
-        this->addOrder(Order(item, ++id, NORMAL));
+        // Order newOrder(item, ++id, NORMAL); //Leaving the mistake to be seen
+        // Order newOrder(item);
+
+        // remaining time is initialized to burst time
+        // REPLY: This is already handled in the Order constructor
+        // newOrder.setRemainingTime(item.burstTime);
+
+        // {
+        //     lock_guard<mutex> lock(listMutex);
+        //     orderList.push_back(newOrder);
+        //     cout << "New order added! Current in queue is " << orderList.size() << endl;
+        // }
+
+        // cv.notify_one(); // Wake the processing thread
+        this->addOrder(Order(item)); // Add order to the list using the existing function
     }
 }
+
 
 void RR::processOrders() {
     isProcessing = true;
-    size_t index = 0;
     while (isProcessing) {
         unique_lock<mutex> lock(listMutex);
-        cv.wait(lock, []() { return !orderList.empty() || !isProcessing; });
-
+        cv.wait(lock, [this] { return !orderList.empty() || !isProcessing; });
         if (!isProcessing && orderList.empty()) break;
-        if (orderList.empty()) continue;
-
-        if (index >= orderList.size()) index = 0;
-
-        Order& currentOrder = orderList[index];
+        
+        Order currentOrder = orderList.front();
+        orderList.erase(orderList.begin());
+        lock.unlock();
+        
         int runTime = min(timeQuantum, currentOrder.getRemainingTime());
-
-        lock.unlock(); // Unlock while sleeping to not block addOrder()
-        sleep_for(milliseconds(1)); // Avoid print overlap
-        cout << "Processing Order ID: " << currentOrder.getOrderId()
+        cout << "\n[RR] Processing Order ID: " << currentOrder.getOrderId()
              << " - " << currentOrder.getItemName()
-             << " for " << runTime << " minutes. Remaining: "
-             << currentOrder.getRemainingTime() - runTime << " minutes.\n";
-
-        sleep_for(seconds(runTime));
-
-        lock.lock();
+             << " for " << runTime << " minutes (Remaining before: "
+             << currentOrder.getRemainingTime() << ")\n";
+        
+        sleep_for(seconds(runTime)); // Simulate processing time
+        
         currentOrder.reduceRemainingTime(runTime);
-        if (currentOrder.getRemainingTime() <= 0) {
-            cout << "Completed Order ID: " << currentOrder.getOrderId() << endl;
-            orderList.erase(orderList.begin() + index); // remove from vector
-             // don't increment index because next item shifted left
+        lock.lock();
+        if (currentOrder.getRemainingTime() > 0) {
+            orderList.push_back(currentOrder);
         } else {
-            index++;
+            cout << "[RR] Completed Order ID: " << currentOrder.getOrderId() << "\n";
         }
     }
 }
+
+
 
 void RR::start() {
     static bool started = false;
