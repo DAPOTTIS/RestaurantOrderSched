@@ -9,9 +9,9 @@ using namespace std;
 using namespace std::chrono;
 using namespace std::this_thread;
 
-int FCFS::id = 0; // Initialize static variable
+// int FCFS::id = 0; // Initialize static variable
 bool FCFS::isProcessing = false;
-std::queue<Order> FCFS::orderQueue;
+std::deque<Order> FCFS::orderQueue;
 std::mutex FCFS::queueMutex;
 std::condition_variable FCFS::cv;
 FCFS::FCFS(){}
@@ -19,7 +19,7 @@ FCFS::FCFS(){}
 void FCFS::addOrder(const Order& order) {
     {
         std::lock_guard<std::mutex> lock(queueMutex);
-        orderQueue.push(order);
+        orderQueue.push_back(order);
     }
     cv.notify_one(); // notify waiting thread that a new order is available
     cout << "New order added! Current in queue is " << getQueueSize() << endl;
@@ -42,7 +42,7 @@ void FCFS::addOrder(const Menu& menu) {
             continue;
         }
         const auto& item = menu.getItemById(x);
-        this->addOrder(Order(item, ++id, NORMAL));
+        this->addOrder(Order(item));
     }
 }
 
@@ -56,7 +56,6 @@ void FCFS::processOrders() {
             if (!isProcessing && orderQueue.empty())
                 break;
             currentOrder = orderQueue.front();
-            orderQueue.pop();
         }
         sleep_for(std::chrono::milliseconds(1)); // Avoid print conflict
         cout << "Processing Order ID: " << currentOrder.getOrderId() 
@@ -64,6 +63,7 @@ void FCFS::processOrders() {
              << " - Burst Time: " << currentOrder.getPrepTime() << " minutes" << endl;
         
         sleep_for(seconds(currentOrder.getPrepTime())); // Simulate processing
+        orderQueue.pop_front();
         cout << "Completed Order ID: " << currentOrder.getOrderId() << endl;
         cout << "Remaining in queue is " << getQueueSize() << endl;
     }
@@ -88,4 +88,8 @@ void FCFS::stop() {
 size_t FCFS::getQueueSize() {
     std::lock_guard<std::mutex> lock(queueMutex);
     return orderQueue.size();
+}
+
+std::deque<Order> FCFS::getQueue() {
+    return orderQueue;
 }

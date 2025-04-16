@@ -12,11 +12,11 @@ using namespace std;
 
 class FCFS {
 private:
-    static std::queue<Order> orderQueue;
+    static std::deque<Order> orderQueue;
     static std::mutex queueMutex;
     static std::condition_variable cv;
     static bool isProcessing;
-    static int id; // Static variable to keep track of the order ID
+    // static int id; // Static variable to keep track of the order ID
 
 public:
     FCFS();
@@ -27,6 +27,7 @@ public:
     void start();
     void stop();
     size_t getQueueSize();
+    std::deque<Order> getQueue();
 };
 
 #endif // FCFS_H
