@@ -80,7 +80,6 @@ void RR::processOrders() {
         if (!isProcessing && orderList.empty()) break;
         
         Order currentOrder = orderList.front();
-        orderList.erase(orderList.begin());
         lock.unlock();
         
         int runTime = min(timeQuantum, currentOrder.getRemainingTime());
@@ -92,7 +91,9 @@ void RR::processOrders() {
         sleep_for(seconds(runTime)); // Simulate processing time
         
         currentOrder.reduceRemainingTime(runTime);
+        orderList.erase(orderList.begin());
         lock.lock();
+
         if (currentOrder.getRemainingTime() > 0) {
             orderList.push_back(currentOrder);
         } else {
@@ -122,4 +123,9 @@ void RR::stop() {
 size_t RR::getOrderCount() {
     lock_guard<mutex> lock(listMutex);
     return orderList.size();
+}
+
+vector<Order> RR::getQueue() {
+    lock_guard<mutex> lock(listMutex);
+    return orderList;
 }

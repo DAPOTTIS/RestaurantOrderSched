@@ -27,7 +27,7 @@ public:
     void start();
     void stop();
     size_t getQueueSize();
-    std::deque<Order> getQueue();
+    static std::deque<Order> getQueue();
 };
 
 #endif // FCFS_H

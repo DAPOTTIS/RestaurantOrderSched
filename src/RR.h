@@ -34,6 +34,7 @@ public:
     void start();
     void stop();
     size_t getOrderCount();
+    static vector<Order> getQueue();
 };
 
 
