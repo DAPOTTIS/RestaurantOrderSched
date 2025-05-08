@@ -63,9 +63,10 @@ void FCFS::processOrders() {
              << " - Burst Time: " << currentOrder.getPrepTime() << " minutes" << endl;
         
         sleep_for(seconds(currentOrder.getPrepTime())); // Simulate processing
+        orderQueue.pop_front();
         cout << "Completed Order ID: " << currentOrder.getOrderId() << endl;
         cout << "Remaining in queue is " << getQueueSize() << endl;
-        orderQueue.pop_front();
+        // orderQueue.pop_front();
     }
 }
 

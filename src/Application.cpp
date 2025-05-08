@@ -1,8 +1,12 @@
 #include "Application.h"
+
+#include <stdexcept>
+
 #include "imgui.h"
 #include "Menu.h"
 #include "FCFS.h"
 #include "Order.h"
+#include "RR.h"
 
 
 namespace App {
@@ -32,8 +36,9 @@ namespace App {
         Menu _menu("egyptian");
         Menu egyptianMenu = _menu.createEgyptianMenu();
         const auto& menu = egyptianMenu.getItems();
-        static FCFS scheduler; // Made static to extend lifetime for the processing thread
-        scheduler.start();
+        static FCFS fcfs; // Made static to extend lifetime for the processing thread
+        static RR rr(6);
+        fcfs.start();
         static ImGuiTableFlags flags =
                     ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable | ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti
                     | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_NoBordersInBody
@@ -57,7 +62,8 @@ namespace App {
                 ImGui::TableNextColumn();
                 if (ImGui::SmallButton("Order"))
                 {
-                    scheduler.addOrder(Order(item)); // Add the order to the scheduler
+                    fcfs.addOrder(Order(item)); // Add the order to the scheduler
+                    rr.addOrder(Order(item));
                 }
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", item.price);
@@ -68,11 +74,24 @@ namespace App {
         ImGui::EndTable();
         }
     }
+
+    template<typename Container>
+        void renderQueue(const Container& queue) {
+        int currentOrder = 0;
+        for(int order = 0; order < static_cast<int>(queue.size()); ++order) {
+            if(order == currentOrder) {
+                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Order %d %s", order, queue[order].item.name.c_str());
+            }
+            else {
+                ImGui::Text("Order %d %s", order, queue[order].item.name.c_str());
+            }
+        }
+    }
+
     void SchedQueues() {
-        ImGuiStyle style = ImGui::GetStyle();
-        float child_w = (ImGui::GetContentRegionAvail().x - 4 * style.ItemSpacing.x) / 5;
-        FCFS fcfs;
-        auto fcfsQueue = fcfs.getQueue();
+        const auto fcfsQueue = FCFS::getQueue();
+        const auto rrQueue = RR::getQueue();
+
         ImGui::Columns(3, nullptr, false);
         for(int i = 0; i < 3; i++) {
             if(i > 0) ImGui::SameLine();
@@ -82,16 +101,13 @@ namespace App {
             const ImGuiID child_id = ImGui::GetID((void*)(intptr_t)i);
             const bool child_is_visible = ImGui::BeginChild(child_id, ImVec2(0,200.0f), ImGuiChildFlags_Border);
             // @todo: get current processing order to highlight
-            int currentOrder = 0;
 
             if(child_is_visible) {
-                for(int order = (int)fcfsQueue.size() - 1; order >= 0; order--) {
-                    if(order == currentOrder) {
-                        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Order %d %s", order, fcfsQueue[order].item.name.c_str());
-                    }
-                    else {
-                        ImGui::Text("Order %d %s", order, fcfsQueue[order].item.name.c_str());
-                    }
+                switch(i) {
+                    case 0 : renderQueue(fcfsQueue); break;
+                    case 1 : renderQueue(rrQueue); break;
+                    case 2 : renderQueue(fcfsQueue); break;
+                    default: throw std::runtime_error("Invalid queue type");
                 }
             }
             ImGui::EndChild();

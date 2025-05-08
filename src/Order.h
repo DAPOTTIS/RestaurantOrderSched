@@ -4,9 +4,6 @@
 #ifndef ORDER_H
 #define ORDER_H
 
-#include <chrono>
-using namespace std::chrono;
-
 
 
 enum Priority {
@@ -15,8 +12,6 @@ enum Priority {
 };
 
 class Order {
-private:
-    int remainingTime; // for RR
 public:
     // std::string itemName;
     // int burstTime;
@@ -47,32 +42,29 @@ public:
     Priority priority;
     int arrivalTime; // Arrival time
     int waitingTime = 0; // Waiting time
+    int remainingTime;
 
     Order() : pid(0), state(ProcessState::NEW), priority(NORMAL), arrivalTime(0) {}
-    Order(const MenuItem& mItem, Priority p = NORMAL) : item(mItem), pid(++orderCount), state(ProcessState::NEW), priority(p), arrivalTime(0) {}
+    // Order(const MenuItem& mItem, Priority p = NORMAL) : item(mItem), pid(++orderCount), state(ProcessState::NEW), priority(p), arrivalTime(0) {}
     Order(const MenuItem& mItem, int pID, Priority p) : item(mItem), pid(pID), state(ProcessState::NEW), priority(NORMAL), arrivalTime(0) {}
     int getPrepTime() const { return item.burstTime; }
     int getArrivalTime() const { return arrivalTime; } 
     int getOrderId() const { return pid; }
+    int getRemainingTime() const {return remainingTime;}
+    void reduceRemainingTime(int time);
+    void setRemainingTime(int time);
     std::string getItemName() const { return item.name; }
 
 
 
 
-    Order(const MenuItem& mItem, int pID, Priority p, int arrival)
-    : item(mItem), pid(pID), state(ProcessState::NEW), priority(p),
-      arrivalTime(arrival), remainingTime(mItem.burstTime) {}
+    Order(const MenuItem& mItem, Priority p = NORMAL) : item(mItem), pid(++orderCount), state(ProcessState::NEW), priority(p), arrivalTime(0), remainingTime(mItem.burstTime) {}
 
 
-    int getRemainingTime() const {
-        return remainingTime;
-    }
 
-    void reduceRemainingTime(int time) {
-        remainingTime -= time;
-        if (remainingTime < 0) remainingTime = 0;
-    }
 };
+
+
 
 
 
