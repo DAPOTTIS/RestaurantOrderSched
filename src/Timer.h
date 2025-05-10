@@ -56,6 +56,7 @@ public:
         } else {
             std::cerr << "[Timer] Error: SchedulerType out of bounds for totalWaitTimes access in calcualteWaitTimer." << std::endl;
         }
+        //TODO: CHECK IF THEY WORK IN PARALLEL
         std::cout << "Total wait time: " << totalWaitTime << std::endl;
         std::cout << "Order ID: " << order.getOrderId() << "Current Wait time: " << order.waitingTime << std::endl;
         std::cout << "[Timer] Calculated wait time for order ID: " << orderID
