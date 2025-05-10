@@ -38,6 +38,8 @@ set(SRC_SOURCES
         src/RR.h
         src/PQ.cpp
         src/PQ.h
+        src/Timer.cpp
+        src/Timer.h
 )
 
 # Include directories for headers (both lib and src)
