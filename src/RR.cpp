@@ -1,4 +1,5 @@
 #include "RR.h"
+#include "Timer.h" // Ensure Timer.h is included for SchedulerType::RR_
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -40,10 +41,12 @@ std::optional<Order> RR::getCurrentlyProcessingOrder() {
     return s_currentlyProcessingOrder;
 }
 
-void RR::addOrder(const Order& order) {
+void RR::addOrder(Order& order) {
     {
         std::lock_guard<std::mutex> lock(listMutex); // Protects orderList
         orderList.push_back(order);
+        // Start wait timer when order is added to the queue
+        this->timer.startwaitTimer(order, RR_);
     }
     cv.notify_one();
     //cout << "Total orders in Queue: " << getOrderCount() << endl;
@@ -67,8 +70,9 @@ void RR::addOrder(const Menu& menu) {
             cout << "Invalid item ID. Try again.\n";
             continue;
         }
-        const auto& item = menu.getItemById(x);
-        this->addOrder(Order(item)); 
+        MenuItem item = menu.getItemById(x);
+        Order order(item);
+        this->addOrder(order);
     }
 }
 
@@ -92,6 +96,10 @@ void RR::processOrders() {
             localCurrentOrder = orderList.front();
             orderList.erase(orderList.begin()); // POPPED HERE (vector uses erase)
             orderFound = true;
+
+            // Stop wait timer and calculate wait time as order is picked for processing
+            this->timer.stopwaitTimer(localCurrentOrder, RR_);
+            this->timer.calcualteWaitTimer(localCurrentOrder, RR_);
         }
         
         if (orderFound) {
@@ -110,10 +118,15 @@ void RR::processOrders() {
             bool reQueued = false;
             if (localCurrentOrder.getRemainingTime() > 0) {
                 std::lock_guard<std::mutex> lock(listMutex); // Protects orderList
+                // Start wait timer again if order is re-queued
+                this->timer.startwaitTimer(localCurrentOrder, RR_);
                 orderList.push_back(localCurrentOrder); // Re-queue the modified local copy
                 reQueued = true;
             } else {
             //    cout << "[RR] Completed Order ID: " << localCurrentOrder.getOrderId() << "\n";
+                // Note: calcualteWaitTimer was already called when order was picked.
+                // If further calculation specific to completion is needed, it would go here.
+                // However, the current Timer design calculates wait time upon dequeue.
                 { // Add to completed orders
                     std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
                     s_completedOrders.push_back(localCurrentOrder);

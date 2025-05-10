@@ -6,12 +6,13 @@
 #include <optional> // For std::optional
 #include "Order.h"
 #include "Menu.h"
+#include "Timer.h"
 
 class RR {
 public:
     RR();
     RR(int quantum); // Constructor to set time quantum
-    void addOrder(const Order& order);
+    void addOrder(Order& order);
     void addOrder(const Menu& menu); // Interactive addOrder
     void start();
     void stop();
@@ -25,6 +26,8 @@ public:
 
     // For completed orders
     static std::vector<Order> getCompletedOrders();
+
+    Timer timer; // Timer instance for wait time tracking
 
 private:
     void processOrders();
@@ -44,4 +47,7 @@ private:
     // Static members for completed orders
     static std::vector<Order> s_completedOrders;
     static std::mutex s_completedOrdersMutex; // Protects s_completedOrders
+
+    static SchedulerType schedulerType; // Scheduler type for the order
+
 };
