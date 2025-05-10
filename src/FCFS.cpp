@@ -25,6 +25,8 @@ std::mutex FCFS::s_currentOrderMutex;
 std::vector<Order> FCFS::s_completedOrders;
 std::mutex FCFS::s_completedOrdersMutex;
 
+SchedulerType FCFS::schedulerType = SchedulerType::FCFS_; // Initialize scheduler type
+
 FCFS::FCFS(){}
 
 // New public static method
@@ -37,7 +39,7 @@ void FCFS::addOrder(Order& order) {
     {
         std::lock_guard<std::mutex> lock(queueMutex); // Protects orderQueue
         orderQueue.push_back(order);
-        timer.startwaitTimer(order); // Start wait timer for the new order
+        // timer.startwaitTimer(order, schedulerType); // Start wait timer for the new order
     }
     cv.notify_one(); 
     //cout << "New order added! Current in queue is " << getQueueSize() << endl;
@@ -97,11 +99,11 @@ void FCFS::processOrders() {
             //      << " - " << localCurrentOrder.getItemName() 
             //      << " - Burst Time: " << localCurrentOrder.getPrepTime() << " minutes" << endl;
 
-            cout << "[FCFS] Stopping wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
-            timer.stopwaitTimer(localCurrentOrder); // Stop wait timer for the order
+            // cout << "[FCFS] Stopping wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
+            // timer.stopwaitTimer(localCurrentOrder, schedulerType); // Stop wait timer for the order
             sleep_for(seconds(localCurrentOrder.getPrepTime())); // Simulate processing
-            cout << "[FCFS] Calculating wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
-            timer.calcualteWaitTimer(localCurrentOrder); // Calculate wait time for the order
+            // cout << "[FCFS] Calculating wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
+            // timer.calcualteWaitTimer(localCurrentOrder, schedulerType); // Calculate wait time for the order
             
             // cout << "Completed Order ID: " << localCurrentOrder.getOrderId() << endl;
             // cout << "Remaining in queue is " << getQueueSize() << endl;

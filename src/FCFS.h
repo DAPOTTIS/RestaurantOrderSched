@@ -46,4 +46,6 @@ private:
     // Static members for completed orders
     static std::vector<Order> s_completedOrders;
     static std::mutex s_completedOrdersMutex; // Protects s_completedOrders
+
+    static SchedulerType schedulerType; // Scheduler type for the order
 };
