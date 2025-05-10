@@ -5,13 +5,14 @@
 #include <mutex>
 #include <condition_variable>
 #include <optional> // For std::optional
-#include "Order.h" // Assuming Order is defined here
-#include "Menu.h"  // Assuming Menu is defined here
+#include "Order.h" //
+#include "Menu.h"  //
+#include "Timer.h" //
 
 class FCFS {
 public:
     FCFS();
-    void addOrder(const Order& order);
+    void addOrder(Order& order);
     void addOrder(const Menu& menu); // Interactive addOrder
     void start();
     void stop();
@@ -25,6 +26,8 @@ public:
 
     // For completed orders
     static std::vector<Order> getCompletedOrders();
+
+    Timer timer; // Timer instance for wait time tracking
 
 private:
     void processOrders();

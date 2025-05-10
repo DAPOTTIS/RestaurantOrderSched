@@ -33,10 +33,11 @@ std::optional<Order> FCFS::getCurrentlyProcessingOrder() {
     return s_currentlyProcessingOrder;
 }
 
-void FCFS::addOrder(const Order& order) {
+void FCFS::addOrder(Order& order) {
     {
         std::lock_guard<std::mutex> lock(queueMutex); // Protects orderQueue
         orderQueue.push_back(order);
+        timer.startwaitTimer(order); // Start wait timer for the new order
     }
     cv.notify_one(); 
     //cout << "New order added! Current in queue is " << getQueueSize() << endl;
@@ -58,8 +59,9 @@ void FCFS::addOrder(const Menu& menu) {
             cout << endl << "Invalid selection. Please re-enter a valid value." << endl;
             continue;
         }
-        const auto& item = menu.getItemById(x);
-        this->addOrder(Order(item));
+        MenuItem item = menu.getItemById(x);
+        Order order(item);
+        this->addOrder(order);
     }
 }
 
@@ -94,8 +96,12 @@ void FCFS::processOrders() {
             // cout << "Processing Order ID: " << localCurrentOrder.getOrderId() 
             //      << " - " << localCurrentOrder.getItemName() 
             //      << " - Burst Time: " << localCurrentOrder.getPrepTime() << " minutes" << endl;
-            
+
+            cout << "[FCFS] Stopping wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
+            timer.stopwaitTimer(localCurrentOrder); // Stop wait timer for the order
             sleep_for(seconds(localCurrentOrder.getPrepTime())); // Simulate processing
+            cout << "[FCFS] Calculating wait timer for order ID: " << localCurrentOrder.getOrderId() << endl;
+            timer.calcualteWaitTimer(localCurrentOrder); // Calculate wait time for the order
             
             // cout << "Completed Order ID: " << localCurrentOrder.getOrderId() << endl;
             // cout << "Remaining in queue is " << getQueueSize() << endl;

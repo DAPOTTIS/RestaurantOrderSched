@@ -41,7 +41,9 @@ public:
     ProcessState state;
     Priority priority;
     int arrivalTime; // Arrival time
-    int waitingTime = 0; // Waiting time
+    double waitingTime = 0; // Waiting time
+    int turnaroundTime = 0; // Turnaround time
+    int completionTime = 0; // Completion time
     int remainingTime;
 
     Order() : pid(0), state(ProcessState::NEW), priority(NORMAL), arrivalTime(0) {}
