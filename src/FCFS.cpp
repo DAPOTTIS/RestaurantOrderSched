@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <vector>  // For std::vector
 // #include <mutex> // Already included via FCFS.h if it includes <mutex>
 // #include "Menu.h" // Already included via FCFS.h
 
@@ -19,6 +20,10 @@ bool FCFS::threadStarted = false; // Initialize threadStarted
 // Static member definitions for currently processing order
 std::optional<Order> FCFS::s_currentlyProcessingOrder;
 std::mutex FCFS::s_currentOrderMutex;
+
+// Static member definitions for completed orders
+std::vector<Order> FCFS::s_completedOrders;
+std::mutex FCFS::s_completedOrdersMutex;
 
 FCFS::FCFS(){}
 
@@ -95,6 +100,11 @@ void FCFS::processOrders() {
             // cout << "Completed Order ID: " << localCurrentOrder.getOrderId() << endl;
             // cout << "Remaining in queue is " << getQueueSize() << endl;
 
+            { // Add to completed orders
+                std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+                s_completedOrders.push_back(localCurrentOrder);
+            }
+
             { // Clear currently processing order
                 std::lock_guard<std::mutex> currentLock(s_currentOrderMutex);
                 s_currentlyProcessingOrder.reset();
@@ -129,4 +139,10 @@ size_t FCFS::getQueueSize() {
 std::deque<Order> FCFS::getQueue() { // Gets the "upcoming" orders queue
     std::lock_guard<std::mutex> lock(queueMutex); // Protects orderQueue
     return orderQueue;
+}
+
+// New public static method to get completed orders
+std::vector<Order> FCFS::getCompletedOrders() {
+    std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+    return s_completedOrders;
 }

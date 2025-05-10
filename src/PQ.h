@@ -27,6 +27,9 @@ public:
     // For the currently processing order for GUI
     static std::optional<Order> getCurrentlyProcessingOrder();
 
+    // For completed orders
+    static std::vector<Order> getCompletedOrders();
+
 
 private:
     void processOrders();
@@ -41,6 +44,10 @@ private:
     // Static members for currently processing order
     static std::optional<Order> s_currentlyProcessingOrder;
     static std::mutex s_currentOrderMutex; // Protects s_currentlyProcessingOrder
+
+    // Static members for completed orders
+    static std::vector<Order> s_completedOrders;
+    static std::mutex s_completedOrdersMutex; // Protects s_completedOrders
 
     static const int PRIORITY_THRESHOLD = 6; 
 };

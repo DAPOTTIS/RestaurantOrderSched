@@ -18,6 +18,11 @@ namespace App {
     static RR rr_scheduler(6); 
     static PriorityScheduler priority_scheduler_instance; 
 
+    static bool show_completed_orders_window = false; // Flag to control visibility of the completed orders window
+
+    // Forward declaration for the completed orders window function
+    void RenderCompletedOrdersWindow(); 
+
     void RenderUI() {
         fcfs_scheduler.start();
         rr_scheduler.start();
@@ -35,7 +40,16 @@ namespace App {
         SchedQueues();
         ImGui::EndChild();
 
+        if (ImGui::Button("Show/Hide Completed Orders")) {
+            show_completed_orders_window = !show_completed_orders_window;
+        }
+
         ImGui::End();
+
+        // Render the completed orders window if the flag is set
+        if (show_completed_orders_window) {
+            RenderCompletedOrdersWindow();
+        }
     }
 
     void MenuPicker() {
@@ -160,5 +174,52 @@ namespace App {
             ImGui::NextColumn();
         }
         ImGui::Columns(1); 
+    }
+
+    // Helper function to render a list of completed orders for a scheduler
+    void RenderCompletedOrdersList(const char* scheduler_name, const std::vector<Order>& completed_orders) {
+        if (ImGui::TreeNode(scheduler_name)) {
+            if (completed_orders.empty()) {
+                ImGui::TextUnformatted("No orders completed yet.");
+            } else {
+                ImGuiListClipper clipper;
+                clipper.Begin(completed_orders.size());
+                while (clipper.Step()) {
+                    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+                        const auto& order = completed_orders[i];
+                        ImGui::Text("ID: %d, Item: %s, Prep Time: %d",
+                                    order.getOrderId(),
+                                    order.getItemName().c_str(),
+                                    order.getPrepTime());
+                    }
+                }
+                clipper.End();
+            }
+            ImGui::TreePop();
+        }
+    }
+
+    // Function to render the "Completed Orders" window
+    void RenderCompletedOrdersWindow() {
+        if (!show_completed_orders_window) {
+            return;
+        }
+
+        ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("Completed Orders", &show_completed_orders_window)) {
+            const auto fcfsCompleted = FCFS::getCompletedOrders();
+            RenderCompletedOrdersList("FCFS Completed Orders", fcfsCompleted);
+
+            ImGui::Separator();
+
+            const auto rrCompleted = RR::getCompletedOrders();
+            RenderCompletedOrdersList("Round Robin Completed Orders", rrCompleted);
+
+            ImGui::Separator();
+
+            const auto pqCompleted = PriorityScheduler::getCompletedOrders();
+            RenderCompletedOrdersList("Priority Queue Completed Orders", pqCompleted);
+        }
+        ImGui::End();
     }
 }

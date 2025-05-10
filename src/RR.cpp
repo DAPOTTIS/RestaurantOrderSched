@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <algorithm> // For std::min
+#include <vector>    // For std::vector
 
 using namespace std;
 using namespace std::chrono;
@@ -19,6 +20,10 @@ bool RR::threadStarted = false; // Initialize threadStarted
 // Static member definitions for currently processing order
 std::optional<Order> RR::s_currentlyProcessingOrder;
 std::mutex RR::s_currentOrderMutex;
+
+// Static member definitions for completed orders
+std::vector<Order> RR::s_completedOrders;
+std::mutex RR::s_completedOrdersMutex;
 
 RR::RR() {}
 
@@ -109,6 +114,10 @@ void RR::processOrders() {
                 reQueued = true;
             } else {
             //    cout << "[RR] Completed Order ID: " << localCurrentOrder.getOrderId() << "\n";
+                { // Add to completed orders
+                    std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+                    s_completedOrders.push_back(localCurrentOrder);
+                }
             }
 
             { // Clear currently processing order
@@ -144,4 +153,10 @@ size_t RR::getOrderCount() {
 std::vector<Order> RR::getQueue() { // Gets the "upcoming" / "partially processed" orders queue
     std::lock_guard<std::mutex> lock(listMutex); // Protects orderList
     return orderList;
+}
+
+// New public static method to get completed orders
+std::vector<Order> RR::getCompletedOrders() {
+    std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+    return s_completedOrders;
 }

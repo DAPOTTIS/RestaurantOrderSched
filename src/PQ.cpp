@@ -7,6 +7,7 @@
 #include <thread> 
 #include <algorithm> // For std::min
 #include <optional>  // For std::optional
+#include <vector>    // For std::vector
 
 using namespace std;
 using namespace std::chrono;
@@ -23,6 +24,10 @@ bool PriorityScheduler::threadStarted = false;
 // New static members for currently processing order
 std::optional<Order> PriorityScheduler::s_currentlyProcessingOrder;
 std::mutex PriorityScheduler::s_currentOrderMutex; // Protects s_currentlyProcessingOrder
+
+// Static member definitions for completed orders
+std::vector<Order> PriorityScheduler::s_completedOrders;
+std::mutex PriorityScheduler::s_completedOrdersMutex;
 
 PriorityScheduler::PriorityScheduler() {
     // Constructor
@@ -131,6 +136,10 @@ void PriorityScheduler::processOrders() {
                                                                       // For simple run-to-completion, this line isn't strictly necessary if not re-queued.
                 }
                 // Order completed
+                { // Add to completed orders
+                    std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+                    s_completedOrders.push_back(localCurrentOrder);
+                }
             } else { // Low-priority order
                 bool preempted = false;
                 while (localCurrentOrder.getRemainingTime() > 0) { // Process the local copy
@@ -157,6 +166,10 @@ void PriorityScheduler::processOrders() {
                     lowPriorityQueue.push_front(localCurrentOrder); // Put the (modified local) order back
                 } else if (localCurrentOrder.getRemainingTime() == 0) {
                     // Order completed
+                    { // Add to completed orders
+                        std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+                        s_completedOrders.push_back(localCurrentOrder);
+                    }
                 }
             }
 
@@ -201,4 +214,10 @@ std::deque<Order> PriorityScheduler::getHighPriorityQueueCopy() const {
 std::deque<Order> PriorityScheduler::getLowPriorityQueueCopy() const {
     std::lock_guard<std::mutex> lock(queueMutex); // queueMutex for deques
     return lowPriorityQueue; 
+}
+
+// New public static method to get completed orders
+std::vector<Order> PriorityScheduler::getCompletedOrders() {
+    std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
+    return s_completedOrders;
 }
