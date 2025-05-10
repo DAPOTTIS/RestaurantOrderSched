@@ -36,6 +36,8 @@ set(SRC_SOURCES
         src/FCFS.h
         src/RR.cpp
         src/RR.h
+        src/PQ.cpp
+        src/PQ.h
 )
 
 # Include directories for headers (both lib and src)

@@ -1,33 +1,38 @@
-#ifndef FCFS_H
-#define FCFS_H
+#pragma once // Use pragma once for include guards
 
-#include <queue>
-#include <thread>
+#include <deque>
 #include <mutex>
 #include <condition_variable>
-#include "Order.h"
-#include "Menu.h"
-
-using namespace std;
+#include <optional> // For std::optional
+#include "Order.h" // Assuming Order is defined here
+#include "Menu.h"  // Assuming Menu is defined here
 
 class FCFS {
-private:
-    static std::deque<Order> orderQueue;
-    static std::mutex queueMutex;
-    static std::condition_variable cv;
-    static bool isProcessing;
-    // static int id; // Static variable to keep track of the order ID
-
 public:
     FCFS();
-    
     void addOrder(const Order& order);
-    void addOrder(const Menu& menu);
-    void processOrders();
+    void addOrder(const Menu& menu); // Interactive addOrder
     void start();
     void stop();
-    size_t getQueueSize();
-    static std::deque<Order> getQueue();
-};
+    size_t getQueueSize(); // Renamed for clarity, matches existing use
 
-#endif // FCFS_H
+    // For "upcoming" orders queue
+    static std::deque<Order> getQueue(); // Keeps original name if Application.cpp uses this
+
+    // For the currently processing order for GUI
+    static std::optional<Order> getCurrentlyProcessingOrder();
+
+private:
+    void processOrders();
+
+    // Static members for the queue of upcoming orders
+    static std::deque<Order> orderQueue;
+    static std::mutex queueMutex; // Protects orderQueue
+    static std::condition_variable cv;
+    static bool isProcessing;
+    static bool threadStarted; // To ensure only one thread is started
+
+    // Static members for currently processing order
+    static std::optional<Order> s_currentlyProcessingOrder;
+    static std::mutex s_currentOrderMutex; // Protects s_currentlyProcessingOrder
+};

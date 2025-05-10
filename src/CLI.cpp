@@ -35,9 +35,9 @@ void CLI::init() {
 
 
 
-    static RR scheduler(8);
-    scheduler.start();
-    scheduler.addOrder(menu);
+    //static RR scheduler(8);
+    //scheduler.start();
+    //scheduler.addOrder(menu);
 
 
 }

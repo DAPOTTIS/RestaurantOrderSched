@@ -1,43 +1,40 @@
-//
-// Created by engah on 4/13/2025.
-//
+#pragma once // Use pragma once
 
-#ifndef RR_H
-#define RR_H
-
-#include <vector>
-#include <thread>
+#include <vector> // RR uses vector
 #include <mutex>
 #include <condition_variable>
+#include <optional> // For std::optional
 #include "Order.h"
 #include "Menu.h"
 
-using namespace std;
-
 class RR {
-private:
-    static vector<Order> orderList;
-    static mutex listMutex;
-    static bool isProcessing;
-    // static int id;
-    static int timeQuantum;
-    static condition_variable cv;
-    static int currentTime;
-    // int nextOrderId = 1;
-
 public:
     RR();
-    RR(int quantum);
+    RR(int quantum); // Constructor to set time quantum
     void addOrder(const Order& order);
-    void addOrder(const Menu& menu);
-    void processOrders();
+    void addOrder(const Menu& menu); // Interactive addOrder
     void start();
     void stop();
-    size_t getOrderCount();
-    static vector<Order> getQueue();
+    size_t getOrderCount(); // Original name
+
+    // For "upcoming" orders queue
+    static std::vector<Order> getQueue(); // Keeps original name
+
+    // For the currently processing order for GUI
+    static std::optional<Order> getCurrentlyProcessingOrder();
+
+private:
+    void processOrders();
+
+    // Static members for the queue of upcoming/partially processed orders
+    static std::vector<Order> orderList; // RR uses vector
+    static std::mutex listMutex; // Protects orderList
+    static std::condition_variable cv;
+    static bool isProcessing;
+    static int timeQuantum;       
+    static bool threadStarted; // To ensure only one thread is started
+
+    // Static members for currently processing order
+    static std::optional<Order> s_currentlyProcessingOrder;
+    static std::mutex s_currentOrderMutex; // Protects s_currentlyProcessingOrder
 };
-
-
-
-
-#endif //RR_H
