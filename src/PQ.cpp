@@ -1,6 +1,7 @@
 #include "PQ.h"
 #include "Order.h" 
 #include "Menu.h"  
+#include "Timer.h" // Added include
 
 #include <iostream>
 #include <chrono> 
@@ -29,6 +30,8 @@ std::mutex PriorityScheduler::s_currentOrderMutex; // Protects s_currentlyProces
 std::vector<Order> PriorityScheduler::s_completedOrders;
 std::mutex PriorityScheduler::s_completedOrdersMutex;
 
+SchedulerType PriorityScheduler::schedulerType = SchedulerType::PQ_; // Added scheduler type definition
+
 PriorityScheduler::PriorityScheduler() {
     // Constructor
 }
@@ -45,9 +48,11 @@ void PriorityScheduler::addOrder(const Order& order) {
         std::lock_guard<std::mutex> lock(queueMutex); // queueMutex for the deques
         if (order.getPrepTime() < PRIORITY_THRESHOLD) {
             highPriorityQueue.push_back(order);
+            timer.startwaitTimer(highPriorityQueue.back(), schedulerType); // Start timer for the order in queue
             queueType = "High Priority";
         } else {
             lowPriorityQueue.push_back(order);
+            timer.startwaitTimer(lowPriorityQueue.back(), schedulerType); // Start timer for the order in queue
             queueType = "Low Priority";
         }
     }
@@ -120,6 +125,9 @@ void PriorityScheduler::processOrders() {
         } 
 
         if (orderFound) {
+            timer.stopwaitTimer(localCurrentOrder, schedulerType); // Stop wait timer
+            timer.calcualteWaitTimer(localCurrentOrder, schedulerType); // Calculate wait time
+
             { // Set currently processing order
                 std::lock_guard<std::mutex> currentLock(s_currentOrderMutex);
                 s_currentlyProcessingOrder = localCurrentOrder;
@@ -164,6 +172,7 @@ void PriorityScheduler::processOrders() {
                 if (preempted) {
                     std::lock_guard<std::mutex> requeueLock(queueMutex); // queueMutex for deques
                     lowPriorityQueue.push_front(localCurrentOrder); // Put the (modified local) order back
+                    timer.startwaitTimer(lowPriorityQueue.front(), schedulerType); // Restart timer for preempted order
                 } else if (localCurrentOrder.getRemainingTime() == 0) {
                     // Order completed
                     { // Add to completed orders

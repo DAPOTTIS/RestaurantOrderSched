@@ -9,6 +9,7 @@
 #include <optional> // Include for std::optional
 #include "Order.h" // Assuming Order.h is correctly included by PQ.cpp
 #include "Menu.h"  // Assuming Menu.h is correctly included by PQ.cpp
+#include "Timer.h"
 
 
 class PriorityScheduler {
@@ -30,6 +31,9 @@ public:
     // For completed orders
     static std::vector<Order> getCompletedOrders();
 
+    Timer timer; // Timer instance for wait time tracking
+
+
 
 private:
     void processOrders();
@@ -50,4 +54,6 @@ private:
     static std::mutex s_completedOrdersMutex; // Protects s_completedOrders
 
     static const int PRIORITY_THRESHOLD = 6; 
+
+    static SchedulerType schedulerType; // Scheduler type for the order
 };
