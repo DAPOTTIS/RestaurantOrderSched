@@ -49,10 +49,12 @@ void PriorityScheduler::addOrder(const Order& order) {
         if (order.getPrepTime() < PRIORITY_THRESHOLD) {
             highPriorityQueue.push_back(order);
             timer.startwaitTimer(highPriorityQueue.back(), schedulerType); // Start timer for the order in queue
+            timer.startTurnaroundTimer(highPriorityQueue.back(), schedulerType); // Start turnaround timer
             queueType = "High Priority";
         } else {
             lowPriorityQueue.push_back(order);
             timer.startwaitTimer(lowPriorityQueue.back(), schedulerType); // Start timer for the order in queue
+            timer.startTurnaroundTimer(lowPriorityQueue.back(), schedulerType); // Start turnaround timer
             queueType = "Low Priority";
         }
     }
@@ -144,6 +146,8 @@ void PriorityScheduler::processOrders() {
                                                                       // For simple run-to-completion, this line isn't strictly necessary if not re-queued.
                 }
                 // Order completed
+                timer.stopTurnaroundTimer(localCurrentOrder, schedulerType); // Stop turnaround timer
+                timer.calculateTurnaroundTime(localCurrentOrder, schedulerType); // Calculate turnaround time
                 { // Add to completed orders
                     std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
                     s_completedOrders.push_back(localCurrentOrder);
@@ -175,6 +179,8 @@ void PriorityScheduler::processOrders() {
                     timer.startwaitTimer(lowPriorityQueue.front(), schedulerType); // Restart timer for preempted order
                 } else if (localCurrentOrder.getRemainingTime() == 0) {
                     // Order completed
+                    timer.stopTurnaroundTimer(localCurrentOrder, schedulerType); // Stop turnaround timer
+                    timer.calculateTurnaroundTime(localCurrentOrder, schedulerType); // Calculate turnaround time
                     { // Add to completed orders
                         std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
                         s_completedOrders.push_back(localCurrentOrder);

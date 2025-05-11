@@ -47,6 +47,7 @@ void RR::addOrder(Order& order) {
         orderList.push_back(order);
         // Start wait timer when order is added to the queue
         this->timer.startwaitTimer(order, RR_);
+        this->timer.startTurnaroundTimer(order, RR_); // Start turnaround timer
     }
     cv.notify_one();
     //cout << "Total orders in Queue: " << getOrderCount() << endl;
@@ -124,6 +125,9 @@ void RR::processOrders() {
                 reQueued = true;
             } else {
             //    cout << "[RR] Completed Order ID: " << localCurrentOrder.getOrderId() << "\n";
+                // Order completed
+                this->timer.stopTurnaroundTimer(localCurrentOrder, RR_);
+                this->timer.calculateTurnaroundTime(localCurrentOrder, RR_);
                 // Note: calcualteWaitTimer was already called when order was picked.
                 // If further calculation specific to completion is needed, it would go here.
                 // However, the current Timer design calculates wait time upon dequeue.

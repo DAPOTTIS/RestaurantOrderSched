@@ -21,6 +21,8 @@ public:
 
     static double totalWaitTime;
     static std::vector<double> totalWaitTimes;
+    static double totalTurnaroundTime; // Added for turnaround time
+    static std::vector<double> totalTurnaroundTimes; // Added for turnaround time per scheduler
 
     void startwaitTimer(Order& order, SchedulerType scheduler){
             // std::lock_guard<std::mutex> lock(mutex); // Reverted: lock commented out
@@ -64,12 +66,70 @@ public:
         // Reverted: else block for error handling removed
     }
 
+    // Methods for Turnaround Time
+    void startTurnaroundTimer(Order& order, SchedulerType scheduler){
+        // std::lock_guard<std::mutex> lock(mutex); // Consider if locking is needed
+        int orderID = order.getOrderId();
+        resizeIfNeeded(orderID);
+        creationTime[orderID] = std::chrono::steady_clock::now();
+    
+        std::cout << "[Timer] Started turnaround timer for order ID: " << orderID
+                  << " at time: " << std::chrono::duration_cast<std::chrono::microseconds>(creationTime[orderID].time_since_epoch()).count() << " us" << std::endl;
+    }
+
+    void stopTurnaroundTimer(Order& order, SchedulerType scheduler){
+        // std::lock_guard<std::mutex> lock(mutex); // Consider if locking is needed
+        int orderID = order.getOrderId();
+        resizeIfNeeded(orderID);
+        completionTime[orderID] = std::chrono::steady_clock::now();
+    
+        std::cout << "[Timer] Stopped turnaround timer for order ID: " << orderID
+                  << " at time: " << std::chrono::duration_cast<std::chrono::microseconds>(completionTime[orderID].time_since_epoch()).count() << " us" << std::endl;
+    }
+
+    void calculateTurnaroundTime(Order& order, SchedulerType scheduler){
+        // std::lock_guard<std::mutex> lock(mutex); // Consider if locking is needed
+        int orderID = order.getOrderId();
+        resizeIfNeeded(orderID); // Ensure vectors are sized
+        
+        // Ensure creationTime and completionTime have valid entries for orderID
+        if (orderID < creationTime.size() && orderID < completionTime.size() && 
+            creationTime[orderID].time_since_epoch().count() != 0 && 
+            completionTime[orderID].time_since_epoch().count() != 0) {
+
+            std::chrono::duration<double> elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(completionTime[orderID] - creationTime[orderID]);
+            // Assuming Order class has a member variable like 'turnaroundTime'
+            // order.turnaroundTime = elapsed_seconds.count(); // Update order's turnaround time
+            
+            totalTurnaroundTime += elapsed_seconds.count();
+
+            if (scheduler >= 0 && static_cast<size_t>(scheduler) < totalTurnaroundTimes.size()) {
+                totalTurnaroundTimes[scheduler] += elapsed_seconds.count();
+            } else {
+                std::cerr << "[Timer] Error: SchedulerType out of bounds for totalTurnaroundTimes access in calculateTurnaroundTime." << std::endl;
+            }
+
+            std::cout << "[Timer] Calculated turnaround time for order ID: " << orderID
+                      << ": " << elapsed_seconds.count() << " seconds" << std::endl;
+            // std::cout << "Order ID: " << order.getOrderId() << " Turnaround time: " << order.turnaroundTime << std::endl;
+            std::cout << "Total turnaround time: " << totalTurnaroundTime << std::endl;
+
+
+        } else {
+            std::cerr << "[Timer] Error: Invalid time data for order ID " << orderID << " in calculateTurnaroundTime." << std::endl;
+        }
+    }
+
+
 private:
     // std::unordered_map<int, OrderTimes> orders_;
     std::mutex mutex; // Mutex for protecting shared data (currently unused due to commented locks)
     // static std::condition_variable cv; // This seems unused, consider removing if not needed
     std::vector<std::chrono::steady_clock::time_point> startTime;
     std::vector<std::chrono::steady_clock::time_point> endTime;
+    std::vector<std::chrono::steady_clock::time_point> creationTime; // Added for turnaround time
+    std::vector<std::chrono::steady_clock::time_point> completionTime; // Added for turnaround time
+
 
     void resizeIfNeeded(int orderID) {
         if (orderID >= startTime.size()) {
@@ -77,6 +137,12 @@ private:
         }
         if (orderID >= endTime.size()) {
             endTime.resize(orderID + 1);
+        }
+        if (orderID >= creationTime.size()) { // Added for turnaround time
+            creationTime.resize(orderID + 1);
+        }
+        if (orderID >= completionTime.size()) { // Added for turnaround time
+            completionTime.resize(orderID + 1);
         }
     }
 
