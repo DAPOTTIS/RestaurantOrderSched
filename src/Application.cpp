@@ -216,8 +216,8 @@ namespace App {
         } else {
           ImGui::Text("Waiting Time: %lf", Timer::totalWaitTimes[schedType]);
           ImGui::Text("Turnaround Time: %lf", Timer::totalTurnaroundTimes[schedType]);
-          ImGui::Text("Avg Waiting Time: %lf", Timer::totalWaitTimes[schedType] / timer.getEndTimeSize());
-          ImGui::Text("Avg Turnaround Time: %lf", Timer::totalTurnaroundTimes[schedType] / timer.getEndTimeSize());
+          ImGui::Text("Avg Waiting Time: %lf", Timer::totalWaitTimes[schedType] / Timer::endTimesSizes[schedType]);
+          ImGui::Text("Avg Turnaround Time: %lf", Timer::totalTurnaroundTimes[schedType] / Timer::endTimesSizes[schedType]);
 
           ImGui::Separator();
 

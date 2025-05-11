@@ -151,6 +151,7 @@ void PriorityScheduler::processOrders() {
                 { // Add to completed orders
                     std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
                     s_completedOrders.push_back(localCurrentOrder);
+                    Timer::endTimesSizes[PQ_]++;
                 }
             } else { // Low-priority order
                 bool preempted = false;

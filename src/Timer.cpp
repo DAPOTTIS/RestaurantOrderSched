@@ -8,4 +8,4 @@ std::vector<double> Timer::totalWaitTimes = {0.0, 0.0, 0.0}; // Initialize stati
 // ... other initializations ...
 double Timer::totalTurnaroundTime = 0.0;
 std::vector<double> Timer::totalTurnaroundTimes(3, 0.0); // Initialize static member for turnaround times
-std::vector<std::chrono::steady_clock::time_point> Timer::endTime;
+std::vector<double> Timer::endTimesSizes(3, 0.0);

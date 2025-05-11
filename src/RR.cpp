@@ -134,6 +134,7 @@ void RR::processOrders() {
                 { // Add to completed orders
                     std::lock_guard<std::mutex> lock(s_completedOrdersMutex);
                     s_completedOrders.push_back(localCurrentOrder);
+                    Timer::endTimesSizes[RR_]++;
                 }
             }
 

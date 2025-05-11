@@ -120,16 +120,17 @@ public:
         }
     }
 
-    static double getEndTimeSize() {
-        return static_cast<double>(endTime.size());
-    }
-
+    // static double getEndTimeSize() {
+    //     return static_cast<double>(endTime.size());
+    // }
+    static std::vector<double> endTimesSizes;
 private:
     // std::unordered_map<int, OrderTimes> orders_;
     std::mutex mutex; // Mutex for protecting shared data (currently unused due to commented locks)
     // static std::condition_variable cv; // This seems unused, consider removing if not needed
     std::vector<std::chrono::steady_clock::time_point> startTime;
-    static std::vector<std::chrono::steady_clock::time_point> endTime;
+    std::vector<std::chrono::steady_clock::time_point> endTime;
+    
 
     std::vector<std::chrono::steady_clock::time_point> creationTime; // Added for turnaround time
     std::vector<std::chrono::steady_clock::time_point> completionTime; // Added for turnaround time
