@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 #include <thread>
@@ -73,7 +74,7 @@ namespace App {
     Menu _menu("egyptian");
     Menu egyptianMenu = _menu.createEgyptianMenu();
     const auto &menuItems = egyptianMenu.getItems();
-    static int stressTestAmount = 100;
+    static uint8_t stressTestAmount = 100;
     if (ImGui::Button("Stress Test")) {
         
       for (uint8_t i = 0; i < stressTestAmount; i++) {
@@ -84,7 +85,7 @@ namespace App {
         priority_scheduler_instance.addOrder(newOrder);
       }
     }
-    ImGui::SliderInt("Order Count", &stressTestAmount, 10, 300);
+    ImGui::SliderInt("Order Count", &stressTestAmount, 0, 255);
 
     static ImGuiTableFlags flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
