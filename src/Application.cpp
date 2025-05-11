@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <optional>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
 #include "FCFS.h"
@@ -72,9 +73,10 @@ namespace App {
     Menu _menu("egyptian");
     Menu egyptianMenu = _menu.createEgyptianMenu();
     const auto &menuItems = egyptianMenu.getItems();
-
+    static int stressTestAmount = 100;
     if (ImGui::Button("Stress Test")) {
-      for (uint8_t i = 0; i < STRESS_TEST_AMOUNT; i++) {
+        
+      for (uint8_t i = 0; i < stressTestAmount; i++) {
         auto randItem = rand() % 10;
         Order newOrder(menuItems[randItem]);
         fcfs_scheduler.addOrder(newOrder);
@@ -82,6 +84,7 @@ namespace App {
         priority_scheduler_instance.addOrder(newOrder);
       }
     }
+    ImGui::SliderInt("Order Count", &stressTestAmount, 10, 300);
 
     static ImGuiTableFlags flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
