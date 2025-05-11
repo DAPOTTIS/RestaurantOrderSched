@@ -13,6 +13,8 @@
 #include "Timer.h"
 #include "imgui.h"
 
+#define STRESS_TEST_AMOUNT 100
+
 namespace App {
   static FCFS fcfs_scheduler;
   static RR rr_scheduler(6);
@@ -35,13 +37,20 @@ namespace App {
 
     ImGui::BeginChild("ChildT",
                       ImVec2(ImGui::GetContentRegionAvail().x,
-                             ImGui::GetContentRegionAvail().y * 0.5),
+                             ImGui::GetContentRegionAvail().y * 0.35),
                       ImGuiChildFlags_None);
     MenuPicker();
     ImGui::EndChild();
-
-    ImGui::BeginChild("ChildB", ImVec2(ImGui::GetContentRegionAvail().x, 0),
+    
+    float button_height_allowance = ImGui::GetFrameHeightWithSpacing() + ImGui::GetStyle().ItemSpacing.y;
+    float child_b_height = ImGui::GetContentRegionAvail().y - button_height_allowance;
+    if (child_b_height < ImGui::GetTextLineHeightWithSpacing()) {
+            child_b_height = ImGui::GetTextLineHeightWithSpacing();
+    }
+    
+    ImGui::BeginChild("ChildB", ImVec2(ImGui::GetContentRegionAvail().x, child_b_height),
                       ImGuiChildFlags_None);
+    
     SchedQueues();
     ImGui::EndChild();
 
@@ -64,6 +73,16 @@ namespace App {
     Menu egyptianMenu = _menu.createEgyptianMenu();
     const auto &menuItems = egyptianMenu.getItems();
 
+    if (ImGui::Button("Stress Test")) {
+      for (uint8_t i = 0; i < STRESS_TEST_AMOUNT; i++) {
+        auto randItem = rand() % 10;
+        Order newOrder(menuItems[randItem]);
+        fcfs_scheduler.addOrder(newOrder);
+        rr_scheduler.addOrder(newOrder);
+        priority_scheduler_instance.addOrder(newOrder);
+      }
+    }
+
     static ImGuiTableFlags flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
         ImGuiTableFlags_Hideable | ImGuiTableFlags_Sortable |
@@ -72,7 +91,7 @@ namespace App {
         ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_ScrollY;
     if (ImGui::BeginTable(
       "menu_table", 5, flags,
-      ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 15), 0.0f)) {
+      ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 10), 0.0f)) {
       // ... table setup ...
       ImGui::TableSetupColumn("ID",
                               ImGuiTableColumnFlags_WidthFixed |
@@ -180,7 +199,7 @@ namespace App {
       ImGui::TextUnformatted(names[i]);
       const ImGuiID child_id = ImGui::GetID((void *) (intptr_t) i);
       const bool child_is_visible = ImGui::BeginChild(
-        child_id, ImVec2(ImGui::GetColumnWidth() * 0.95f, 200.0f),
+        child_id, ImVec2(ImGui::GetColumnWidth() * 0.95f, 350.0f),
         ImGuiChildFlags_Border);
 
       if (child_is_visible) {
